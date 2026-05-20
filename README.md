@@ -1,11 +1,12 @@
 # Coursely
 
-Plataforma SaaS B2C para compartilhamento de cursos desejados. Este repositório está na **Fase 0.1**: fundação da solução (.NET + React), seguindo [`agents.md`](agents.md) e [`roadmap.md`](roadmap.md).
+Plataforma SaaS B2C para compartilhamento de cursos desejados. Este repositório está na **Fase 0.2**: Docker/local stack + health check FE↔BE, seguindo [`agents.md`](agents.md) e [`roadmap.md`](roadmap.md).
 
 ## Pré-requisitos
 
 - **.NET SDK 10** (`dotnet --version` deve reportar `10.x`)
 - **Node.js**: recomenda-se **20.19+** (algumas dependências do frontend declaram esse requisito; **20.18.x** costuma funcionar para build/test com Vite 6, mas pode gerar avisos `EBADENGINE`)
+- **Docker Engine + Docker Compose v2** (para `docker compose` e para testes de integração com **Testcontainers**)
 
 ## Estrutura do repositório
 
@@ -51,8 +52,37 @@ dotnet test Coursely.slnx
 Inclui:
 
 - **ArchitectureTests**: impede dependências indevidas na camada `Domain`
-- **IntegrationTests**: valida `GET /health` via `WebApplicationFactory` (ambiente `IntegrationTesting`, sem redirect HTTPS que quebre o `HttpClient`)
+- **IntegrationTests**: `GET /health` via `WebApplicationFactory`; cenário com **SQL Server real em container (Testcontainers)** + **Respawn** para limpar dados. Se o Docker não estiver disponível, o teste que depende do SQL Server é **ignorado** (`Skipped`).
 - **UnitTests**: exemplos sobre tipos compartilhados (`Result`)
+
+### Variáveis de ambiente (API)
+
+| Variável | Obrigatória | Descrição |
+|----------|-------------|-----------|
+| `ConnectionStrings__DefaultConnection` | Para Docker / EF | Connection string do SQL Server (Compose define por você). |
+| `Cors__AllowedOrigins` | Recomendada em produção | Origens separadas por vírgula (ex.: `http://localhost:3000,http://localhost:5173`). |
+
+Ver também [`appsettings.json`](src/Api/appsettings.json).
+
+### Docker Compose (SQL Server, Redis, API, frontend)
+
+1. Copie [`.env.example`](.env.example) para `.env` na raiz e defina **`MSSQL_SA_PASSWORD`** com uma senha forte (requisitos do SQL Server).
+2. Opcional: ajuste **`VITE_API_URL`** — URL da API **como o navegador a enxerga** (padrão `http://localhost:5230`, alinhado ao mapeamento da API no Compose).
+
+```bash
+docker compose up --build
+```
+
+Serviços típicos:
+
+| Serviço | URL / porta host |
+|---------|------------------|
+| Frontend (nginx) | `http://localhost:3000` |
+| API | `http://localhost:5230` (`GET /health`, `/swagger`) |
+| SQL Server | `localhost:1433` |
+| Redis | `localhost:6379` |
+
+`Dockerfile`s: [`src/Api/Dockerfile`](src/Api/Dockerfile), [`frontend/Dockerfile`](frontend/Dockerfile).
 
 ### Rodar todos os testes localmente (.NET + frontend)
 
@@ -90,11 +120,11 @@ npm run format:check # Prettier (check)
 npm run typecheck    # tsc -b
 ```
 
-## Stack inicial (Fase 0.1)
+## Stack inicial (até Fase 0.2)
 
-**Backend:** ASP.NET Core 10, MediatR, FluentValidation, AutoMapper 16, EF Core + SQL Server + Identity (pacotes preparados; DbContext nas próximas fases), Serilog, Swagger, JWT Bearer (pacote referenciado; fluxo na Fase 1).
+**Backend:** ASP.NET Core 10, MediatR, FluentValidation, AutoMapper 16, EF Core + SQL Server (`ApplicationDbContext` + migrations), Identity/JWT (pacotes preparados; fluxo na Fase 1), Serilog, Swagger, health checks (incl. banco quando há connection string), CORS, Docker.
 
-**Frontend:** React 19, Vite 6, TypeScript strict, Tailwind CSS v4 + **shadcn/ui**, TanStack Query, Axios, Zustand (auth/tema/sessão — placeholders), React Hook Form + Zod, Framer Motion, Vitest + Testing Library.
+**Frontend:** React 19, Vite 6, TypeScript strict, Tailwind CSS v4 + **shadcn/ui**, TanStack Query, Axios, Zustand (auth/tema/sessão — placeholders), React Hook Form + Zod, Framer Motion, Vitest + Testing Library; home consome `GET /health` da API.
 
 ## Design (Google Stitch + MCP)
 
@@ -102,7 +132,6 @@ Telas e fluxos de UI são alinhados ao projeto **[Google Stitch](https://stitch.
 
 Documentação dedicada: [`docs/stitch.md`](docs/stitch.md).
 
-## Próximas fases (fora do escopo da 0.1)
+## Próximas fases
 
-- **0.2**: Docker Compose (SQL Server, Redis, API, frontend), integração mais próxima FE↔BE.
 - **0.3**: CI (build, testes, cobertura, lint/typecheck).

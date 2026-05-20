@@ -6,6 +6,9 @@
 ## Dependencies
 **/node_modules/
 
+## Local env (Docker Compose)
+.env
+
 ## Tooling / IDE
 .vs/
 .idea/
