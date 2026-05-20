@@ -54,6 +54,18 @@ Inclui:
 - **IntegrationTests**: valida `GET /health` via `WebApplicationFactory` (ambiente `IntegrationTesting`, sem redirect HTTPS que quebre o `HttpClient`)
 - **UnitTests**: exemplos sobre tipos compartilhados (`Result`)
 
+### Rodar todos os testes localmente (.NET + frontend)
+
+Na raiz do repositório (requer **`dotnet`** e **`npm`** no PATH; para o frontend, rode `npm install` em [`frontend`](frontend/) na primeira vez):
+
+```bash
+./scripts/test-all.sh
+```
+
+Saídas: logs completos e resumo em `test-results/local/<timestamp>/` (ignored pelo Git), incluindo `REPORT.txt` e relatório no terminal ao final.
+
+O script executa **os mesmos projetos .NET acima** e em seguida **`npm run test`** (Vitest) em `frontend/`.
+
 ## Frontend
 
 ```bash
