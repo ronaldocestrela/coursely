@@ -42,3 +42,5 @@ Alinhadas entre backend (`RegisterUserCommandValidator` + opções do Identity) 
 - **Unitários**: validador, handler (mock do `IUserRegistrationService`).
 - **Integração**: cadastro com sucesso e e-mail duplicado (requer Docker + Testcontainers SQL Server).
 - **Frontend**: `frontend/src/tests/RegisterPage.test.tsx`.
+
+Próximo fluxo: [Login com JWT (Fase 1.2)](auth-login.md).

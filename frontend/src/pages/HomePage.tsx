@@ -52,7 +52,10 @@ export function HomePage() {
         <Button type="button" asChild>
           <Link to="/cadastro">Criar conta</Link>
         </Button>
-        <Button type="button" variant="outline">
+        <Button type="button" variant="outline" asChild>
+          <Link to="/login">Entrar</Link>
+        </Button>
+        <Button type="button" variant="secondary">
           Explore
         </Button>
       </div>

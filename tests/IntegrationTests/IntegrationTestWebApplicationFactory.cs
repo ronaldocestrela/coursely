@@ -38,6 +38,11 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
                 {
                     ["ConnectionStrings:DefaultConnection"] = _sqlContainer.GetConnectionString(),
                     ["Cors:AllowedOrigins"] = "http://localhost",
+                    ["Jwt:Key"] = "integration-test-jwt-signing-key-at-least-32-chars!!",
+                    ["Jwt:Issuer"] = "Coursely.Tests",
+                    ["Jwt:Audience"] = "Coursely.Tests",
+                    ["Jwt:AccessTokenExpirationMinutes"] = "60",
+                    ["Jwt:RefreshTokenExpirationDays"] = "7",
                 });
         });
     }

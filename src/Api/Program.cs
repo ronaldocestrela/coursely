@@ -3,6 +3,7 @@ using Application;
 using Infrastructure;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +45,18 @@ builder.Services.AddSwaggerGen(c =>
         Title = "Coursely API",
         Version = "v1",
     });
+
+    c.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Description = "JWT Bearer. Example: `Bearer {token}`",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+        });
 });
 
 var healthChecks = builder.Services.AddHealthChecks();
@@ -53,7 +66,7 @@ if (!string.IsNullOrWhiteSpace(connectionString))
     healthChecks.AddDbContextCheck<ApplicationDbContext>("database");
 }
 
-// JWT Bearer package is referenced per roadmap; full validation lands in Phase 1.
+// JWT Bearer authentication is registered in Infrastructure when connection string and Jwt:Key are set.
 
 var app = builder.Build();
 
@@ -89,6 +102,7 @@ if (!app.Environment.IsEnvironment("IntegrationTesting"))
 
 app.UseCors();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHealthChecks("/health");
