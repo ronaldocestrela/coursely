@@ -1,6 +1,6 @@
 # Coursely
 
-Plataforma SaaS B2C para compartilhamento de cursos desejados. Este repositório está na **Fase 0.2**: Docker/local stack + health check FE↔BE, seguindo [`agents.md`](agents.md) e [`roadmap.md`](roadmap.md).
+Plataforma SaaS B2C para compartilhamento de cursos desejados. Este repositório está na **Fase 0.3**: pipeline base de qualidade no GitHub Actions + Docker/local stack + health check FE↔BE, seguindo [`agents.md`](agents.md) e [`roadmap.md`](roadmap.md).
 
 ## Pré-requisitos
 
@@ -28,6 +28,38 @@ frontend/
 
 - Backend segue **Clean Architecture** (`Domain` sem dependências de outras camadas).
 - Frontend fica em **`frontend/`** (isolado da solution .NET).
+
+## CI — GitHub Actions
+
+O workflow [`quality.yml`](.github/workflows/quality.yml) roda em **push** para `main`/`master` e em **pull requests**.
+
+| Job | O que valida |
+|-----|----------------|
+| `backend-quality` | `dotnet restore` / `dotnet build` / `dotnet test` em `Coursely.slnx` (Release), coleta cobertura com **Coverlet** (`XPlat Code Coverage`), inclui **ArchitectureTests**. Upload do artefato `dotnet-coverage` com relatórios `*.xml` quando gerados. No runner do GitHub há **Docker**, então cenários **Testcontainers** (SQL Server) tendem a executar de verdade — não apenas skip. |
+| `frontend-quality` | em `frontend/`: `npm ci`, `npm run format:check`, `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`. **Node é fixado em 20.19.x** para alinhar ao requisito de engine do ESLint e ao README. |
+
+### Política de merge
+
+Um PR não deve ser considerado pronto enquanto o workflow **Quality** falhar em qualquer job (build, testes, arquitetura, formatação, typecheck ou lint).
+
+### Espelhar o CI localmente
+
+Backend (na raiz):
+
+```bash
+dotnet restore Coursely.slnx
+dotnet build Coursely.slnx --configuration Release
+dotnet test Coursely.slnx --configuration Release --no-build --collect:"XPlat Code Coverage"
+```
+
+Frontend (`frontend/`):
+
+```bash
+cd frontend && npm ci
+npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build
+```
+
+Ou use [`scripts/test-all.sh`](scripts/test-all.sh) como atalho para .NET + `npm run test` (não cobre lint/typecheck/format do frontend).
 
 ## Backend (API)
 
@@ -120,7 +152,7 @@ npm run format:check # Prettier (check)
 npm run typecheck    # tsc -b
 ```
 
-## Stack inicial (até Fase 0.2)
+## Stack inicial (até Fase 0.3)
 
 **Backend:** ASP.NET Core 10, MediatR, FluentValidation, AutoMapper 16, EF Core + SQL Server (`ApplicationDbContext` + migrations), Identity/JWT (pacotes preparados; fluxo na Fase 1), Serilog, Swagger, health checks (incl. banco quando há connection string), CORS, Docker.
 
@@ -134,4 +166,4 @@ Documentação dedicada: [`docs/stitch.md`](docs/stitch.md).
 
 ## Próximas fases
 
-- **0.3**: CI (build, testes, cobertura, lint/typecheck).
+- **1.x**: Autenticação e sessão (Identity, JWT, refresh) — ver [`roadmap.md`](roadmap.md).

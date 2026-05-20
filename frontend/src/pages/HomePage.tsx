@@ -25,11 +25,16 @@ export function HomePage() {
           <span>Checking API…</span>
         ) : healthQuery.isError ? (
           <span className="text-destructive">
-            API unreachable ({healthQuery.error instanceof Error ? healthQuery.error.message : 'unknown error'})
+            API unreachable (
+            {healthQuery.error instanceof Error
+              ? healthQuery.error.message
+              : 'unknown error'}
+            )
           </span>
         ) : (
           <span>
-            API health: <strong className="font-medium">{healthQuery.data?.trim() ?? '—'}</strong>
+            API health:{' '}
+            <strong className="font-medium">{healthQuery.data?.trim() ?? '—'}</strong>
           </span>
         )}
       </div>

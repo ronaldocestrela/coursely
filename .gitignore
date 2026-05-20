@@ -21,3 +21,6 @@ Thumbs.db
 
 ## Local test artifacts (scripts/test-all.sh)
 test-results/
+
+## dotnet test coverage / VSTest output (local CI mirror)
+TestResults/
