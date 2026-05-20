@@ -1,5 +1,7 @@
 using System.Text;
 using Application.Features.Auth.Commands.Login;
+using Application.Features.Auth.Commands.Logout;
+using Application.Features.Auth.Commands.Refresh;
 using Application.Features.Auth.Commands.RegisterUser;
 using Infrastructure.Identity;
 using Infrastructure.Persistence;
@@ -43,6 +45,8 @@ public static class DependencyInjection
             services.AddScoped<IUserRegistrationService, UserRegistrationService>();
             services.AddSingleton<JwtTokenService>();
             services.AddScoped<IUserLoginService, UserLoginService>();
+            services.AddScoped<IUserRefreshTokenService, UserRefreshTokenService>();
+            services.AddScoped<IUserLogoutService, UserLogoutService>();
 
             var jwtSection = configuration.GetSection(JwtOptions.SectionName);
             var jwtKey = jwtSection["Key"];

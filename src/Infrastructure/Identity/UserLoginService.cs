@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using Application.Features.Auth.Commands.Login;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Entities;
@@ -60,11 +58,13 @@ public sealed class UserLoginService(
         var refreshPlain = RefreshTokenGenerator.CreateOpaqueToken();
         var refreshHash = TokenHasher.Hash(refreshPlain);
         var refreshExpires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpirationDays);
+        var familyId = Guid.NewGuid();
 
         dbContext.RefreshTokens.Add(new RefreshToken
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,
+            FamilyId = familyId,
             TokenHash = refreshHash,
             ExpiresAt = refreshExpires,
             CreatedAt = DateTime.UtcNow,
@@ -82,23 +82,5 @@ public sealed class UserLoginService(
                 accessExpires,
                 refreshPlain,
                 new DateTimeOffset(DateTime.SpecifyKind(refreshExpires, DateTimeKind.Utc))));
-    }
-}
-
-internal static class RefreshTokenGenerator
-{
-    public static string CreateOpaqueToken()
-    {
-        var bytes = RandomNumberGenerator.GetBytes(32);
-        return Convert.ToBase64String(bytes);
-    }
-}
-
-internal static class TokenHasher
-{
-    public static string Hash(string token)
-    {
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
-        return Convert.ToBase64String(bytes);
     }
 }

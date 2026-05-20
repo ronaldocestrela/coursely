@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Api.Contracts.Auth;
 using Application.Features.Auth.Commands.Login;
+using Application.Features.Auth.Commands.Logout;
+using Application.Features.Auth.Commands.Refresh;
 using Application.Features.Auth.Commands.RegisterUser;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -69,6 +71,49 @@ public sealed class AuthController(IMediator mediator) : ControllerBase
     }
 
     /// <summary>
+    /// Exchanges the current refresh token for a rotated refresh token and a new JWT access token.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("refresh")]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest body, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(
+                new RefreshTokenCommand(body.RefreshToken),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!result.IsSuccess)
+        {
+            return UnauthorizedRefresh(result.Error?.Code, result.Error?.Message);
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Revokes the supplied refresh token (current device session).
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Logout([FromBody] LogoutRequest body, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new LogoutCommand(body.RefreshToken), cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!result.IsSuccess)
+        {
+            return BadRequest(new { code = result.Error?.Code, message = result.Error?.Message });
+        }
+
+        return NoContent();
+    }
+
+    /// <summary>
     /// Returns the current authenticated user (requires Bearer token).
     /// </summary>
     [Authorize]
@@ -88,5 +133,10 @@ public sealed class AuthController(IMediator mediator) : ControllerBase
         var roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToArray();
 
         return Ok(new MeResponse(userId, email, name, roles));
+    }
+
+    private static IActionResult UnauthorizedRefresh(string? code, string? message)
+    {
+        return new UnauthorizedObjectResult(new { code, message });
     }
 }

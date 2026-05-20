@@ -74,7 +74,7 @@ export function LoginPage() {
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
         user: {
-          id: data.userId,
+          id: String(data.userId),
           name: data.name,
           email: data.email,
         },

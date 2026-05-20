@@ -1,11 +1,17 @@
-import { Link } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
+import { Link, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
+import { logoutUser } from '@/services/auth'
 import { useAppStore } from '@/stores/useAppStore'
 
 export function DashboardPage() {
   const user = useAppStore((s) => s.user)
   const clearSession = useAppStore((s) => s.clearSession)
+
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   return (
     <section className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center gap-8 px-6 py-12">
@@ -24,8 +30,22 @@ export function DashboardPage() {
         <Button
           type="button"
           variant="secondary"
-          onClick={() => {
-            clearSession()
+          onClick={async () => {
+            const rt = useAppStore.getState().refreshToken
+
+            try {
+              if (rt) {
+                await logoutUser(rt)
+              }
+            }
+            catch {
+              toast.error('Não foi possível encerrar a sessão no servidor. Você será desconectado aqui mesmo.')
+            }
+            finally {
+              queryClient.clear()
+              clearSession()
+              navigate('/login', { replace: true })
+            }
           }}
         >
           Encerrar sessão

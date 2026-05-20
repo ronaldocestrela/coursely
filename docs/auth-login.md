@@ -24,7 +24,7 @@ Respostas:
   - `roles` (array de strings; vazio se o usuário não tiver papéis)
   - `accessToken` (JWT HS256)
   - `accessTokenExpiresAt` (ISO 8601)
-  - `refreshToken` (string opaca; **armazenada apenas como hash SHA-256 no banco**; rotação/revogação na fase 1.3)
+  - `refreshToken` (string opaca; **armazenada apenas como hash SHA-256 no banco**; rotação/revogação implementadas na **Fase 1.3** — ver [auth-refresh.md](auth-refresh.md))
   - `refreshTokenExpiresAt` (ISO 8601)
 - **400 Bad Request** — `ValidationProblemDetails` (validação FluentValidation).
 - **401 Unauthorized** — `{ "code": "auth.invalid_credentials", "message": "..." }` para credenciais incorretas ou usuário inexistente (mensagem genérica).
@@ -58,7 +58,7 @@ Variáveis de ambiente (ex.: Docker): `Jwt__Key`, `Jwt__Issuer`, `Jwt__Audience`
 
 - Rota: `/login` — React Hook Form + Zod; mutation React Query (`loginUser` em `services/auth.ts`).
 - Sessão: Zustand (`useAppStore`) com **persist** em `localStorage` (`coursely-storage`); campos `accessToken`, `refreshToken`, `user`.
-- Axios (`services/http.ts`): interceptor adiciona `Authorization: Bearer` quando há `accessToken`.
+- Axios (`services/http.ts`): interceptor **request** com Bearer; interceptor **response** em **401** renova sessão uma vez via `POST /api/auth/refresh` (ver [auth-refresh.md](auth-refresh.md)).
 - Rota privada: `/dashboard` protegida por `RequireAuth`.
 
 ## Testes
@@ -66,4 +66,5 @@ Variáveis de ambiente (ex.: Docker): `Jwt__Key`, `Jwt__Issuer`, `Jwt__Audience`
 - **Unitários**: `LoginCommandValidator`, `LoginCommandHandler`, `JwtTokenService` (claims); frontend `LoginPage.test.tsx`.
 - **Integração**: login + `/api/auth/me` + senha inválida (Docker + Testcontainers SQL Server).
 
-Ver também [Registro de usuário (Fase 1.1)](auth-register.md).
+Ver também [Registro de usuário (Fase 1.1)](auth-register.md), [Refresh / Logout — rotação e revogação (Fase 1.3)](auth-refresh.md) e rotas `POST /api/auth/refresh`, `POST /api/auth/logout` documentadas lá.
+
