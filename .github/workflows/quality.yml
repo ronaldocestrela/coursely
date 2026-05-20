@@ -15,6 +15,7 @@ permissions:
 jobs:
   backend-quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,7 +23,11 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.x'
+          # Align with repo root global.json sdk.version
+          dotnet-version: '10.0.107'
+
+      - name: Diagnostics (.NET + Docker)
+        run: dotnet --info && docker version
 
       - name: Restore
         run: dotnet restore Coursely.slnx
@@ -45,10 +50,11 @@ jobs:
         with:
           name: dotnet-coverage
           path: TestResults/**/*coverage*.xml
-          if-no-files-found: warn
+          if-no-files-found: error
 
   frontend-quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     defaults:
       run:
         working-directory: frontend
@@ -59,9 +65,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
+          # Match Dockerfile base and frontend/.nvmrc (approx. 20.19 latest patch).
           node-version: '20.19'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+
+      - name: Diagnostics (Node + npm)
+        run: node --version && npm --version
 
       - name: Install
         run: npm ci

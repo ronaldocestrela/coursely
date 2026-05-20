@@ -4,7 +4,7 @@ Plataforma SaaS B2C para compartilhamento de cursos desejados. Este repositório
 
 ## Pré-requisitos
 
-- **.NET SDK 10** (`dotnet --version` deve reportar `10.x`)
+- **.NET SDK 10**, versão de patch fixada em [`global.json`](global.json) (`dotnet --info` deve alinhar a essa entrada; o CI usa a mesma)
 - **Node.js**: recomenda-se **20.19+** (algumas dependências do frontend declaram esse requisito; **20.18.x** costuma funcionar para build/test com Vite 6, mas pode gerar avisos `EBADENGINE`)
 - **Docker Engine + Docker Compose v2** (para `docker compose` e para testes de integração com **Testcontainers**)
 
@@ -35,8 +35,8 @@ O workflow [`quality.yml`](.github/workflows/quality.yml) roda em **push** para 
 
 | Job | O que valida |
 |-----|----------------|
-| `backend-quality` | `dotnet restore` / `dotnet build` / `dotnet test` em `Coursely.slnx` (Release), coleta cobertura com **Coverlet** (`XPlat Code Coverage`), inclui **ArchitectureTests**. Upload do artefato `dotnet-coverage` com relatórios `*.xml` quando gerados. No runner do GitHub há **Docker**, então cenários **Testcontainers** (SQL Server) tendem a executar de verdade — não apenas skip. |
-| `frontend-quality` | em `frontend/`: `npm ci`, `npm run format:check`, `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`. **Node é fixado em 20.19.x** para alinhar ao requisito de engine do ESLint e ao README. |
+| `backend-quality` | `dotnet restore` / `dotnet build` / `dotnet test` em `Coursely.slnx` (Release), coleta cobertura com **Coverlet** (`XPlat Code Coverage`), inclui **ArchitectureTests**. Os testes **IntegrationTests** partilham uma única fixture com **Testcontainers** (SQL Server) para não levantar vários contentores em paralelo no runner. Artefato `dotnet-coverage` exige relatórios `*coverage*.xml` (Coverlet Cobertura cumpre o glob). Docker no runner executa cenários SQL; sem Docker ficam apenas skips. |
+| `frontend-quality` | em `frontend/`: `npm ci`, `npm run format:check`, `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`. Node **20.19** em CI (`quality.yml`), alinhado ao [`engines`](frontend/package.json), ao [`frontend/.nvmrc`](frontend/.nvmrc) e ao `Dockerfile`. |
 
 ### Política de merge
 
@@ -59,7 +59,7 @@ cd frontend && npm ci
 npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build
 ```
 
-Ou use [`scripts/test-all.sh`](scripts/test-all.sh) como atalho para .NET + `npm run test` (não cobre lint/typecheck/format do frontend).
+Ou use [`scripts/test-all.sh`](scripts/test-all.sh): **rápido** (padrão) roda só `dotnet test` + Vitest verboso; **`./scripts/test-all.sh --full`** espelha o workflow (Release + Coverlet no backend e todas as etapas do `frontend-quality`).
 
 ## Backend (API)
 
@@ -74,7 +74,8 @@ dotnet run --project src/Api/Api.csproj
 - Swagger (desenvolvimento): `/swagger`
 - Health check: `GET /health`
 - URL HTTP padrão (perfil `http`): `http://localhost:5230`
-- **Desenvolvimento** (`ASPNETCORE_ENVIRONMENT=Development`): se **`ConnectionStrings:DefaultConnection`** estiver vazio, Identity e auth usam um banco **In-Memory** do EF Core (dados voláteis). Para usar **SQL Server** de verdade, defina a connection string (Compose, variável de ambiente ou `appsettings.Development.json`).
+- **Sem `ConnectionStrings:DefaultConnection` configurada**: fora do ambiente **`IntegrationTesting`**, Identity e endpoints de auth usam um banco **In-Memory** do EF Core (dados **voláteis** ao reiniciar o processo). Isso vale também para **`ASPNETCORE_ENVIRONMENT=Production`** ou Docker sem CS (evita erro de DI). Para **SQL Server persistente**, defina a connection string (Compose, variável ou `appsettings.*`).
+
 
 ### Testes (.NET)
 
@@ -85,14 +86,14 @@ dotnet test Coursely.slnx
 Inclui:
 
 - **ArchitectureTests**: impede dependências indevidas na camada `Domain`
-- **IntegrationTests**: `GET /health` via `WebApplicationFactory`; cenário com **SQL Server real em container (Testcontainers)** + **Respawn** para limpar dados. Se o Docker não estiver disponível, o teste que depende do SQL Server é **ignorado** (`Skipped`).
+- **IntegrationTests**: `GET /health` via `WebApplicationFactory`; **uma** instância de SQL Server (Testcontainers) partilhada pela collection **`IntegrationTests`**, **Respawn** para limpar dados entre testes. Sem Docker/disponível, falhas só de infra resultam **skip**; falhas **após** o contentor subir (ex.: migrações) fazem falhar o suite.
 - **UnitTests**: validadores e handlers de auth ([docs/auth-register.md](docs/auth-register.md), [docs/auth-login.md](docs/auth-login.md), [docs/auth-password-recovery.md](docs/auth-password-recovery.md)), `Result`, geração de JWT (`JwtTokenService`).
 
 ### Variáveis de ambiente (API)
 
 | Variável | Obrigatória | Descrição |
 |----------|-------------|-----------|
-| `ConnectionStrings__DefaultConnection` | Para Docker / SQL Server persistente no dev | Connection string do SQL Server (Compose define por você). Em **Development** sem valor, a API pode usar EF **In-Memory** só para desenvolvimento local (veja texto acima). |
+| `ConnectionStrings__DefaultConnection` | SQL Server persistente | Compose ou variável. Se omitida **fora** de `IntegrationTesting`, a API usa EF **In-Memory** (volátil); **defina sempre** para produção e dados reais. |
 | `Cors__AllowedOrigins` | Recomendada em produção | Origens separadas por vírgula (ex.: `http://localhost:3000,http://localhost:5173`). |
 | `Jwt__Key` | **Produção / qualquer ambiente com login JWT** | Segredo de assinatura do access token (HS256). Deve ser forte e longo o suficiente; ver `Jwt` em [`appsettings.json`](src/Api/appsettings.json). |
 | `Jwt__Issuer` | Recomendada | Emissor do JWT (alinhado a `Jwt:Issuer` no appsettings). |

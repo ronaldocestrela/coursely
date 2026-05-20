@@ -1,4 +1,5 @@
-FROM node:22-alpine AS build
+# Align Node major with CI (quality.yml uses 20.19.x) — satisfies ESLint 10 engine constraint.
+FROM node:20.19-alpine AS build
 WORKDIR /app
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci

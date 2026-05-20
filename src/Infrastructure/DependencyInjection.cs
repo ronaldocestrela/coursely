@@ -28,25 +28,33 @@ public static class DependencyInjection
 
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        var usePersistence =
-            !string.IsNullOrWhiteSpace(connectionString)
-            || (environment.IsDevelopment()
-                && !string.Equals(
-                    environment.EnvironmentName,
-                    "IntegrationTesting",
-                    StringComparison.OrdinalIgnoreCase));
+        var isIntegrationTesting = string.Equals(
+            environment.EnvironmentName,
+            "IntegrationTesting",
+            StringComparison.OrdinalIgnoreCase);
+
+        var hasConnectionString = !string.IsNullOrWhiteSpace(connectionString);
+
+        // Register Identity + EF for every real hosting scenario. Only skip when IntegrationTests run
+        // without Docker/Testcontainers (no DB in config), so `/health` can run without wiring SQL Server.
+        // Docker/Compose often uses Production + injected connection string; localhost may use Production
+        // without a CS — then we fall back to in-memory EF so auth endpoints resolve correctly.
+        var usePersistence = !isIntegrationTesting || hasConnectionString;
 
         if (usePersistence)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                if (!string.IsNullOrWhiteSpace(connectionString))
+                if (hasConnectionString)
                 {
                     options.UseSqlServer(connectionString);
                     return;
                 }
 
-                options.UseInMemoryDatabase("Coursely_DevLocal_NoConnectionString");
+                var label = environment.IsDevelopment()
+                    ? "Coursely_DevLocal_NoConnectionString"
+                    : "Coursely_Runtime_NoConnectionString";
+                options.UseInMemoryDatabase(label);
             });
 
             services

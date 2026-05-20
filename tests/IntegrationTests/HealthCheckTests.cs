@@ -3,8 +3,8 @@ using FluentAssertions;
 
 namespace IntegrationTests;
 
+[Collection("IntegrationTests")]
 public sealed class HealthCheckTests(IntegrationTestWebApplicationFactory factory)
-    : IClassFixture<IntegrationTestWebApplicationFactory>
 {
     private readonly HttpClient _client = factory.CreateClient();
 

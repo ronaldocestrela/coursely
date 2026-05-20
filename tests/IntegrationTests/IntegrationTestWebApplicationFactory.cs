@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Net.Http;
 using DotNet.Testcontainers.Builders;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +17,11 @@ namespace IntegrationTests;
 /// </summary>
 public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    /// <summary>
+    /// Pinned Ubuntu-based tag (avoid floating <c>latest</c>); see MCR MSSQL artifact tags for updates.
+    /// </summary>
+    private const string MsSqlServerImage = "mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04";
+
     private MsSqlContainer? _sqlContainer;
     private Respawner? _respawner;
 
@@ -52,12 +60,30 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
     {
         try
         {
-            _sqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest")
+            _sqlContainer = new MsSqlBuilder(MsSqlServerImage)
                 .WithPassword("Test_password_123!")
+                .WithWaitStrategy(
+                    Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(
+                        1433,
+                        ws => ws
+                            .WithTimeout(TimeSpan.FromMinutes(6))
+                            .WithInterval(TimeSpan.FromSeconds(2))))
                 .Build();
 
             await _sqlContainer.StartAsync();
+        }
+        catch (Exception ex) when (IsDockerOrContainerInfrastructureFailure(ex))
+        {
+            LogInfrastructureSkipReason(ex);
+            await DisposeSqlContainerQuietlyAsync();
+            SqlServerIsAvailable = false;
+            return;
+        }
 
+        Debug.Assert(_sqlContainer is not null);
+
+        try
+        {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseSqlServer(_sqlContainer.GetConnectionString())
                 .Options;
@@ -73,10 +99,74 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
 
             SqlServerIsAvailable = true;
         }
-        catch (DockerUnavailableException)
+        catch
         {
             await DisposeSqlContainerQuietlyAsync();
-            SqlServerIsAvailable = false;
+            throw;
+        }
+    }
+
+    private static bool IsDockerOrContainerInfrastructureFailure(Exception ex)
+    {
+        foreach (var inner in IterateExceptions(ex))
+        {
+            switch (inner)
+            {
+                case DockerUnavailableException:
+                    return true;
+                case TimeoutException:
+                case OperationCanceledException:
+                case HttpRequestException:
+                    return true;
+                case IOException:
+                    return true;
+            }
+
+            var name = inner.GetType().FullName ?? inner.GetType().Name;
+            if (name.StartsWith("Docker.DotNet", StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static IEnumerable<Exception> IterateExceptions(Exception ex)
+    {
+        if (ex is AggregateException agg)
+        {
+            foreach (var inner in agg.Flatten().InnerExceptions)
+            {
+                foreach (var e in IterateExceptions(inner))
+                {
+                    yield return e;
+                }
+            }
+
+            yield break;
+        }
+
+        yield return ex;
+        var walk = ex.InnerException;
+        while (walk is not null)
+        {
+            yield return walk;
+            walk = walk.InnerException;
+        }
+    }
+
+    [SuppressMessage("Design", "CA1031")]
+    private static void LogInfrastructureSkipReason(Exception ex)
+    {
+        try
+        {
+            Console.Error.WriteLine(
+                $"[IntegrationTests] Skipping SQL Server Testcontainers ({nameof(SqlServerIsAvailable)}=false): {ex}");
+        }
+        catch
+        {
+            // Best-effort only.
         }
     }
 

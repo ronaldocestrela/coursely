@@ -8,8 +8,8 @@ using Xunit;
 
 namespace IntegrationTests;
 
+[Collection("IntegrationTests")]
 public sealed class LoginUserIntegrationTests(IntegrationTestWebApplicationFactory factory)
-    : IClassFixture<IntegrationTestWebApplicationFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
