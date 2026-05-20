@@ -20,7 +20,12 @@ vi.mock('@/services/auth', () => ({
 const mockSetSession = vi.fn()
 
 vi.mock('@/stores/useAppStore', () => ({
-  useAppStore: (selector: (state: { accessToken: string | null; setSession: typeof mockSetSession }) => unknown) =>
+  useAppStore: (
+    selector: (state: {
+      accessToken: string | null
+      setSession: typeof mockSetSession
+    }) => unknown,
+  ) =>
     selector({
       accessToken: null,
       setSession: mockSetSession,

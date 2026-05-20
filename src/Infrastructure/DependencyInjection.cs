@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure;
@@ -19,17 +20,34 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IHostEnvironment environment)
     {
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<PasswordRecoveryOptions>(configuration.GetSection(PasswordRecoveryOptions.SectionName));
 
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        if (!string.IsNullOrWhiteSpace(connectionString))
+        var usePersistence =
+            !string.IsNullOrWhiteSpace(connectionString)
+            || (environment.IsDevelopment()
+                && !string.Equals(
+                    environment.EnvironmentName,
+                    "IntegrationTesting",
+                    StringComparison.OrdinalIgnoreCase));
+
+        if (usePersistence)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
+            {
+                if (!string.IsNullOrWhiteSpace(connectionString))
+                {
+                    options.UseSqlServer(connectionString);
+                    return;
+                }
+
+                options.UseInMemoryDatabase("Coursely_DevLocal_NoConnectionString");
+            });
 
             services
                 .AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>

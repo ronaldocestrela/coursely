@@ -18,7 +18,8 @@ export function DashboardPage() {
       <header className="flex flex-col gap-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground text-sm">
-          Sessão ativa como <span className="text-foreground font-medium">{user?.name ?? '—'}</span> (
+          Sessão ativa como{' '}
+          <span className="text-foreground font-medium">{user?.name ?? '—'}</span> (
           {user?.email ?? '—'})
         </p>
       </header>
@@ -37,11 +38,11 @@ export function DashboardPage() {
               if (rt) {
                 await logoutUser(rt)
               }
-            }
-            catch {
-              toast.error('Não foi possível encerrar a sessão no servidor. Você será desconectado aqui mesmo.')
-            }
-            finally {
+            } catch {
+              toast.error(
+                'Não foi possível encerrar a sessão no servidor. Você será desconectado aqui mesmo.',
+              )
+            } finally {
               queryClient.clear()
               clearSession()
               navigate('/login', { replace: true })

@@ -97,15 +97,23 @@ export function ResetPasswordPage() {
     <section className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-8 px-6 py-12">
       <header className="flex flex-col gap-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">Redefinir senha</h1>
-        <p className="text-muted-foreground text-sm">Defina uma nova senha forte para sua conta.</p>
+        <p className="text-muted-foreground text-sm">
+          Defina uma nova senha forte para sua conta.
+        </p>
       </header>
 
       {linkErrorMessage ? (
-        <div className="bg-destructive/10 border-destructive text-destructive rounded-md border p-3 text-sm" role="alert">
+        <div
+          className="bg-destructive/10 border-destructive text-destructive rounded-md border p-3 text-sm"
+          role="alert"
+        >
           <p>{linkErrorMessage}</p>
           <p className="text-muted-foreground mt-2 text-xs">
             Peça uma nova recuperação em{' '}
-            <Link to="/esqueci-senha" className="text-primary underline-offset-4 hover:underline">
+            <Link
+              to="/esqueci-senha"
+              className="text-primary underline-offset-4 hover:underline"
+            >
               Esqueci minha senha
             </Link>
             .
@@ -130,12 +138,17 @@ export function ResetPasswordPage() {
             {...register('password')}
           />
           {errors.password ? (
-            <p id="reset-password-error" className="text-destructive text-sm" role="alert">
+            <p
+              id="reset-password-error"
+              className="text-destructive text-sm"
+              role="alert"
+            >
               {errors.password.message}
             </p>
           ) : null}
           <p className="text-muted-foreground text-xs">
-            Mínimo 8 caracteres, com maiúscula, minúscula, número e caractere especial.
+            Mínimo 8 caracteres, com maiúscula, minúscula, número e caractere
+            especial.
           </p>
         </div>
 
@@ -147,11 +160,17 @@ export function ResetPasswordPage() {
             autoComplete="new-password"
             disabled={!queryResult.success}
             aria-invalid={Boolean(errors.confirmPassword)}
-            aria-describedby={errors.confirmPassword ? 'reset-confirm-error' : undefined}
+            aria-describedby={
+              errors.confirmPassword ? 'reset-confirm-error' : undefined
+            }
             {...register('confirmPassword')}
           />
           {errors.confirmPassword ? (
-            <p id="reset-confirm-error" className="text-destructive text-sm" role="alert">
+            <p
+              id="reset-confirm-error"
+              className="text-destructive text-sm"
+              role="alert"
+            >
               {errors.confirmPassword.message}
             </p>
           ) : null}
@@ -163,7 +182,10 @@ export function ResetPasswordPage() {
       </form>
 
       <p className="text-center text-sm">
-        <Link to="/login" className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline">
+        <Link
+          to="/login"
+          className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+        >
           Voltar ao login
         </Link>
       </p>

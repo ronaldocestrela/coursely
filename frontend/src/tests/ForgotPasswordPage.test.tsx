@@ -62,7 +62,9 @@ describe('ForgotPasswordPage', () => {
   it('renders form', () => {
     renderForgot()
 
-    expect(screen.getByRole('heading', { name: /esqueci minha senha/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /esqueci minha senha/i }),
+    ).toBeInTheDocument()
     expect(screen.getByLabelText(/^e-mail$/i)).toBeInTheDocument()
   })
 

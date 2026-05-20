@@ -8,7 +8,10 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { registerFormSchema, type RegisterFormValues } from '@/features/auth/registerSchema'
+import {
+  registerFormSchema,
+  type RegisterFormValues,
+} from '@/features/auth/registerSchema'
 import { registerUser } from '@/services/auth'
 
 function extractApiErrorMessage(err: unknown): string {
@@ -100,7 +103,11 @@ export function RegisterPage() {
             {...register('name')}
           />
           {errors.name ? (
-            <p id="register-name-error" className="text-destructive text-sm" role="alert">
+            <p
+              id="register-name-error"
+              className="text-destructive text-sm"
+              role="alert"
+            >
               {errors.name.message}
             </p>
           ) : null}
@@ -117,7 +124,11 @@ export function RegisterPage() {
             {...register('email')}
           />
           {errors.email ? (
-            <p id="register-email-error" className="text-destructive text-sm" role="alert">
+            <p
+              id="register-email-error"
+              className="text-destructive text-sm"
+              role="alert"
+            >
               {errors.email.message}
             </p>
           ) : null}
@@ -134,12 +145,17 @@ export function RegisterPage() {
             {...register('password')}
           />
           {errors.password ? (
-            <p id="register-password-error" className="text-destructive text-sm" role="alert">
+            <p
+              id="register-password-error"
+              className="text-destructive text-sm"
+              role="alert"
+            >
               {errors.password.message}
             </p>
           ) : null}
           <p className="text-muted-foreground text-xs">
-            Mínimo 8 caracteres, com maiúscula, minúscula, número e caractere especial.
+            Mínimo 8 caracteres, com maiúscula, minúscula, número e caractere
+            especial.
           </p>
         </div>
 
@@ -156,7 +172,11 @@ export function RegisterPage() {
             {...register('confirmPassword')}
           />
           {errors.confirmPassword ? (
-            <p id="register-confirm-error" className="text-destructive text-sm" role="alert">
+            <p
+              id="register-confirm-error"
+              className="text-destructive text-sm"
+              role="alert"
+            >
               {errors.confirmPassword.message}
             </p>
           ) : null}
@@ -169,13 +189,19 @@ export function RegisterPage() {
 
       <p className="text-muted-foreground text-center text-sm">
         Já tem uma conta?{' '}
-        <Link to="/login" className="text-primary font-medium underline-offset-4 hover:underline">
+        <Link
+          to="/login"
+          className="text-primary font-medium underline-offset-4 hover:underline"
+        >
           Entrar
         </Link>
       </p>
 
       <p className="text-center text-sm">
-        <Link to="/" className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline">
+        <Link
+          to="/"
+          className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+        >
           Voltar ao início
         </Link>
       </p>

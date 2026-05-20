@@ -15,7 +15,9 @@ export type RegisterUserResponse = {
   email: string
 }
 
-export async function registerUser(body: RegisterUserDto): Promise<RegisterUserResponse> {
+export async function registerUser(
+  body: RegisterUserDto,
+): Promise<RegisterUserResponse> {
   const { data } = await http.post<RegisterUserResponse>('/api/auth/register', body)
   return data
 }
@@ -33,7 +35,9 @@ export async function loginUser(body: LoginUserDto): Promise<LoginUserResponse> 
 /**
  * Rotate refresh tokens (explicit call; interceptor uses the same backend contract internally).
  */
-export async function refreshSession(refreshToken: string): Promise<LoginUserResponse> {
+export async function refreshSession(
+  refreshToken: string,
+): Promise<LoginUserResponse> {
   const { data } = await bareHttp.post<LoginUserResponse>('/api/auth/refresh', {
     refreshToken,
   })
@@ -51,8 +55,13 @@ export type ForgotPasswordDto = {
 }
 
 /** Always returns generic success wording (enumeration-safe). */
-export async function forgotPassword(body: ForgotPasswordDto): Promise<ForgotPasswordResponseDto> {
-  const { data } = await http.post<ForgotPasswordResponseDto>('/api/auth/forgot-password', body)
+export async function forgotPassword(
+  body: ForgotPasswordDto,
+): Promise<ForgotPasswordResponseDto> {
+  const { data } = await http.post<ForgotPasswordResponseDto>(
+    '/api/auth/forgot-password',
+    body,
+  )
   return data
 }
 

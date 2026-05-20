@@ -13,7 +13,7 @@ builder.Host.UseSerilog(
         configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration, builder.Environment);
 
 var corsOrigins = builder.Configuration["Cors:AllowedOrigins"]?
         .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
@@ -77,7 +77,14 @@ if (!app.Environment.IsEnvironment("IntegrationTesting"))
         var db = scope.ServiceProvider.GetService<ApplicationDbContext>();
         if (db is not null)
         {
-            await db.Database.MigrateAsync();
+            if (db.Database.IsRelational())
+            {
+                await db.Database.MigrateAsync();
+            }
+            else
+            {
+                await db.Database.EnsureCreatedAsync();
+            }
         }
     }
 }

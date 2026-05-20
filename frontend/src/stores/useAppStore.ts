@@ -21,7 +21,11 @@ export type AppStore = {
   refreshToken: string | null
   user: AuthUser | null
 
-  setSession: (payload: { accessToken: string; refreshToken: string; user: AuthUser }) => void
+  setSession: (payload: {
+    accessToken: string
+    refreshToken: string
+    user: AuthUser
+  }) => void
   clearSession: () => void
 }
 

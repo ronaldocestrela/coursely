@@ -51,7 +51,8 @@ export function ForgotPasswordPage() {
   })
 
   const mutation = useMutation({
-    mutationFn: (values: ForgotPasswordFormValues) => forgotPassword({ email: values.email }),
+    mutationFn: (values: ForgotPasswordFormValues) =>
+      forgotPassword({ email: values.email }),
     onSuccess: (data) => {
       toast.success(data.message)
       reset()
@@ -66,8 +67,8 @@ export function ForgotPasswordPage() {
       <header className="flex flex-col gap-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">Esqueci minha senha</h1>
         <p className="text-muted-foreground text-sm">
-          Informe seu e-mail. Se estiver cadastrado, você receberá instruções (em desenvolvimento, o link aparece nos
-          logs da API).
+          Informe seu e-mail. Se estiver cadastrado, você receberá instruções (em
+          desenvolvimento, o link aparece nos logs da API).
         </p>
       </header>
 
@@ -87,7 +88,11 @@ export function ForgotPasswordPage() {
             {...register('email')}
           />
           {errors.email ? (
-            <p id="forgot-email-error" className="text-destructive text-sm" role="alert">
+            <p
+              id="forgot-email-error"
+              className="text-destructive text-sm"
+              role="alert"
+            >
               {errors.email.message}
             </p>
           ) : null}
@@ -100,13 +105,19 @@ export function ForgotPasswordPage() {
 
       <p className="text-muted-foreground text-center text-sm">
         Lembrou a senha?{' '}
-        <Link to="/login" className="text-primary font-medium underline-offset-4 hover:underline">
+        <Link
+          to="/login"
+          className="text-primary font-medium underline-offset-4 hover:underline"
+        >
           Voltar ao login
         </Link>
       </p>
 
       <p className="text-center text-sm">
-        <Link to="/" className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline">
+        <Link
+          to="/"
+          className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+        >
           Voltar ao início
         </Link>
       </p>

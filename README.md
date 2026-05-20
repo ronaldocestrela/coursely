@@ -74,6 +74,7 @@ dotnet run --project src/Api/Api.csproj
 - Swagger (desenvolvimento): `/swagger`
 - Health check: `GET /health`
 - URL HTTP padrão (perfil `http`): `http://localhost:5230`
+- **Desenvolvimento** (`ASPNETCORE_ENVIRONMENT=Development`): se **`ConnectionStrings:DefaultConnection`** estiver vazio, Identity e auth usam um banco **In-Memory** do EF Core (dados voláteis). Para usar **SQL Server** de verdade, defina a connection string (Compose, variável de ambiente ou `appsettings.Development.json`).
 
 ### Testes (.NET)
 
@@ -91,7 +92,7 @@ Inclui:
 
 | Variável | Obrigatória | Descrição |
 |----------|-------------|-----------|
-| `ConnectionStrings__DefaultConnection` | Para Docker / EF | Connection string do SQL Server (Compose define por você). |
+| `ConnectionStrings__DefaultConnection` | Para Docker / SQL Server persistente no dev | Connection string do SQL Server (Compose define por você). Em **Development** sem valor, a API pode usar EF **In-Memory** só para desenvolvimento local (veja texto acima). |
 | `Cors__AllowedOrigins` | Recomendada em produção | Origens separadas por vírgula (ex.: `http://localhost:3000,http://localhost:5173`). |
 | `Jwt__Key` | **Produção / qualquer ambiente com login JWT** | Segredo de assinatura do access token (HS256). Deve ser forte e longo o suficiente; ver `Jwt` em [`appsettings.json`](src/Api/appsettings.json). |
 | `Jwt__Issuer` | Recomendada | Emissor do JWT (alinhado a `Jwt:Issuer` no appsettings). |

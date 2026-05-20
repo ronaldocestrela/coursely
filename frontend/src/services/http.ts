@@ -33,7 +33,9 @@ export const http = axios.create({
 /** Serialize concurrent refreshes triggered by parallel 401s. */
 let refreshInFlight: Promise<LoginUserResponse> | null = null
 
-async function refreshAccessTokenViaApi(refreshToken: string): Promise<LoginUserResponse> {
+async function refreshAccessTokenViaApi(
+  refreshToken: string,
+): Promise<LoginUserResponse> {
   const { data } = await bareHttp.post<LoginUserResponse>('/api/auth/refresh', {
     refreshToken,
   })
@@ -69,7 +71,10 @@ function redirectToLoginForExpiredSession(): void {
   }
 }
 
-function shouldAttemptRefreshOn401(config?: { skipAuthRetry?: boolean; url?: string }): boolean {
+function shouldAttemptRefreshOn401(config?: {
+  skipAuthRetry?: boolean
+  url?: string
+}): boolean {
   if (!config?.url || config.skipAuthRetry) {
     return false
   }
@@ -126,8 +131,7 @@ http.interceptors.response.use(
       const tokens = await enqueueRefresh(refreshToken)
       originalRequest.headers.Authorization = `Bearer ${tokens.accessToken}`
       return await http(originalRequest)
-    }
-    catch {
+    } catch {
       redirectToLoginForExpiredSession()
       return Promise.reject(error)
     }

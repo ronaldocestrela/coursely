@@ -19,7 +19,9 @@ describe('forgotPassword / resetPassword', () => {
       config: {} as AxiosResponse['config'],
     } satisfies Partial<AxiosResponse>)
 
-    await expect(forgotPassword({ email: 'recover@example.com' })).resolves.toMatchObject({
+    await expect(
+      forgotPassword({ email: 'recover@example.com' }),
+    ).resolves.toMatchObject({
       message:
         'Se este e-mail estiver cadastrado, enviaremos instruções para redefinir a senha em instantes.',
     })

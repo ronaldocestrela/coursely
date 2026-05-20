@@ -80,7 +80,9 @@ export function LoginPage() {
         },
       })
       toast.success('Bem-vindo de volta!')
-      navigate(fromPath && fromPath !== '/login' ? fromPath : '/dashboard', { replace: true })
+      navigate(fromPath && fromPath !== '/login' ? fromPath : '/dashboard', {
+        replace: true,
+      })
     },
     onError: (err) => {
       toast.error(extractApiErrorMessage(err))
@@ -114,7 +116,11 @@ export function LoginPage() {
             {...register('email')}
           />
           {errors.email ? (
-            <p id="login-email-error" className="text-destructive text-sm" role="alert">
+            <p
+              id="login-email-error"
+              className="text-destructive text-sm"
+              role="alert"
+            >
               {errors.email.message}
             </p>
           ) : null}
@@ -131,7 +137,11 @@ export function LoginPage() {
             {...register('password')}
           />
           {errors.password ? (
-            <p id="login-password-error" className="text-destructive text-sm" role="alert">
+            <p
+              id="login-password-error"
+              className="text-destructive text-sm"
+              role="alert"
+            >
               {errors.password.message}
             </p>
           ) : null}
@@ -153,13 +163,19 @@ export function LoginPage() {
 
       <p className="text-muted-foreground text-center text-sm">
         Não tem conta?{' '}
-        <Link to="/cadastro" className="text-primary font-medium underline-offset-4 hover:underline">
+        <Link
+          to="/cadastro"
+          className="text-primary font-medium underline-offset-4 hover:underline"
+        >
           Criar conta
         </Link>
       </p>
 
       <p className="text-center text-sm">
-        <Link to="/" className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline">
+        <Link
+          to="/"
+          className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+        >
           Voltar ao início
         </Link>
       </p>

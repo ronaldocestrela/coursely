@@ -22,6 +22,8 @@ export const resetPasswordFormSchema = z
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>
 
 export const resetPasswordQuerySchema = z.object({
-  userId: z.string().uuid('Link inválido: identificador do usuário ausente ou inválido.'),
+  userId: z
+    .string()
+    .uuid('Link inválido: identificador do usuário ausente ou inválido.'),
   token: z.string().min(1, 'Link inválido: token ausente.'),
 })
