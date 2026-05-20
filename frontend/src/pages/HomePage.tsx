@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
 import { fetchApiHealth } from '@/services/health'
@@ -48,7 +49,9 @@ export function HomePage() {
       ) : null}
 
       <div className="flex flex-wrap justify-center gap-3">
-        <Button type="button">Get started</Button>
+        <Button type="button" asChild>
+          <Link to="/cadastro">Criar conta</Link>
+        </Button>
         <Button type="button" variant="outline">
           Explore
         </Button>

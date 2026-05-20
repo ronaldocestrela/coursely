@@ -1,3 +1,4 @@
+using Api.ExceptionHandlers;
 using Application;
 using Infrastructure;
 using Infrastructure.Persistence;
@@ -33,6 +34,8 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -76,6 +79,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseSerilogRequestLogging();
+
+app.UseExceptionHandler();
 
 if (!app.Environment.IsEnvironment("IntegrationTesting"))
 {
