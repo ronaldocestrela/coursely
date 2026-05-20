@@ -43,6 +43,7 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
                     ["Jwt:Audience"] = "Coursely.Tests",
                     ["Jwt:AccessTokenExpirationMinutes"] = "60",
                     ["Jwt:RefreshTokenExpirationDays"] = "7",
+                    ["PasswordRecovery:FrontendBaseUrl"] = "http://localhost:5173",
                 });
         });
     }

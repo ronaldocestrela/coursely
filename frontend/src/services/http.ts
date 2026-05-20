@@ -75,7 +75,14 @@ function shouldAttemptRefreshOn401(config?: { skipAuthRetry?: boolean; url?: str
   }
 
   /** These routes must handle 401 without refresh. */
-  const suppressed = ['/api/auth/login', '/api/auth/register', '/api/auth/refresh', '/api/auth/logout']
+  const suppressed = [
+    '/api/auth/login',
+    '/api/auth/register',
+    '/api/auth/refresh',
+    '/api/auth/logout',
+    '/api/auth/forgot-password',
+    '/api/auth/reset-password',
+  ]
 
   return !suppressed.some((path) => config.url!.includes(path))
 }

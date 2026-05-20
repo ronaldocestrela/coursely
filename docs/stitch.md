@@ -10,7 +10,7 @@ Mantenha esse projeto atualizado quando houver decisões visuais ou de navegaç�
 
 ## Como usar no desenvolvimento
 
-1. **Consultar o Stitch** antes de implementar telas novas ou grandes mudanças de UX no [`frontend/`](../frontend/) (React, Tailwind v4, shadcn/ui).
+1. **Consultar o Stitch** antes de implementar telas novas ou grandes mudanças de UX no [`frontend/`](../frontend/) (React, Tailwind v4, shadcn/ui). Fluxos de auth recentes (**Esqueci minha senha** em `/esqueci-senha`, **Redefinir senha** em `/redefinir-senha`) devem refletir o mesmo padrão de layout dos formulários de login/cadastro.
 2. **Traduzir para código** usando componentes existentes (`frontend/src/components/ui`, layouts em `frontend/src/layouts`) e tokens/tema já configurados pelo shadcn; evitar copiar valores soltos quando já existir equivalente no tema.
 3. **Registrar divergências**: quando o código precisar diferir do Stitch (performance, acessibilidade, limite da biblioteca), documente brevemente no PR ou na doc da feature.
 

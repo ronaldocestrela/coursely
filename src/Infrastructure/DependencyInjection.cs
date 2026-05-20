@@ -3,6 +3,7 @@ using Application.Features.Auth.Commands.Login;
 using Application.Features.Auth.Commands.Logout;
 using Application.Features.Auth.Commands.Refresh;
 using Application.Features.Auth.Commands.RegisterUser;
+using Application.Features.Auth.PasswordRecovery;
 using Infrastructure.Identity;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,6 +22,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.Configure<PasswordRecoveryOptions>(configuration.GetSection(PasswordRecoveryOptions.SectionName));
 
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
@@ -47,6 +49,8 @@ public static class DependencyInjection
             services.AddScoped<IUserLoginService, UserLoginService>();
             services.AddScoped<IUserRefreshTokenService, UserRefreshTokenService>();
             services.AddScoped<IUserLogoutService, UserLogoutService>();
+            services.AddScoped<IPasswordResetEmailSender, PasswordResetLoggingEmailSender>();
+            services.AddScoped<IUserPasswordRecoveryService, UserPasswordRecoveryService>();
 
             var jwtSection = configuration.GetSection(JwtOptions.SectionName);
             var jwtKey = jwtSection["Key"];

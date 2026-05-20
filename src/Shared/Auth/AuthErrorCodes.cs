@@ -11,4 +11,8 @@ public static class AuthErrorCodes
     public const string RefreshTokenExpired = "auth.refresh_token_expired";
 
     public const string RefreshTokenReuseDetected = "auth.refresh_token_reuse_detected";
+
+    public const string PasswordResetInvalid = "auth.password_reset_invalid";
+
+    public const string PasswordResetFailed = "auth.password_reset_failed";
 }

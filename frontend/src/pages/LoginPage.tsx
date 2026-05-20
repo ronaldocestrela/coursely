@@ -137,6 +137,15 @@ export function LoginPage() {
           ) : null}
         </div>
 
+        <div className="flex justify-end">
+          <Link
+            to="/esqueci-senha"
+            className="text-primary text-sm font-medium underline-offset-4 hover:underline"
+          >
+            Esqueci minha senha
+          </Link>
+        </div>
+
         <Button type="submit" className="w-full" disabled={mutation.isPending}>
           {mutation.isPending ? 'Entrando…' : 'Entrar'}
         </Button>

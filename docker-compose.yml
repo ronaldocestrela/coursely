@@ -43,6 +43,7 @@ services:
       ConnectionStrings__DefaultConnection: >-
         Server=sqlserver,1433;Database=Coursely;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true
       Cors__AllowedOrigins: http://localhost:3000,http://localhost:5173
+      PasswordRecovery__FrontendBaseUrl: http://localhost:3000
     depends_on:
       sqlserver:
         condition: service_healthy

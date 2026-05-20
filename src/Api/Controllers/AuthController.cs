@@ -1,9 +1,11 @@
 using System.Security.Claims;
 using Api.Contracts.Auth;
+using Application.Features.Auth.Commands.ForgotPassword;
 using Application.Features.Auth.Commands.Login;
 using Application.Features.Auth.Commands.Logout;
 using Application.Features.Auth.Commands.Refresh;
 using Application.Features.Auth.Commands.RegisterUser;
+using Application.Features.Auth.Commands.ResetPassword;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -103,6 +105,44 @@ public sealed class AuthController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> Logout([FromBody] LogoutRequest body, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new LogoutCommand(body.RefreshToken), cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!result.IsSuccess)
+        {
+            return BadRequest(new { code = result.Error?.Code, message = result.Error?.Message });
+        }
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Requests password reset instructions. Response is always generic to avoid disclosing registered e-mails.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(typeof(ForgotPasswordResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest body, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new ForgotPasswordCommand(body.Email.Trim()), cancellationToken).ConfigureAwait(false);
+
+        /** Handler always succeeds (ambiguous outcome for unknown e-mails). */
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Resets password using ASP.NET Identity token from the emailed/logged recovery link.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("reset-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest body, CancellationToken cancellationToken)
+    {
+        var result = await mediator
+            .Send(
+                new ResetPasswordCommand(body.UserId, body.Token, body.Password, body.ConfirmPassword),
+                cancellationToken)
             .ConfigureAwait(false);
 
         if (!result.IsSuccess)

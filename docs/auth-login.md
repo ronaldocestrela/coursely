@@ -66,5 +66,5 @@ Variáveis de ambiente (ex.: Docker): `Jwt__Key`, `Jwt__Issuer`, `Jwt__Audience`
 - **Unitários**: `LoginCommandValidator`, `LoginCommandHandler`, `JwtTokenService` (claims); frontend `LoginPage.test.tsx`.
 - **Integração**: login + `/api/auth/me` + senha inválida (Docker + Testcontainers SQL Server).
 
-Ver também [Registro de usuário (Fase 1.1)](auth-register.md), [Refresh / Logout — rotação e revogação (Fase 1.3)](auth-refresh.md) e rotas `POST /api/auth/refresh`, `POST /api/auth/logout` documentadas lá.
+Ver também [Registro de usuário (Fase 1.1)](auth-register.md), [Refresh / Logout — rotação e revogação (Fase 1.3)](auth-refresh.md), [Recuperação de senha (Fase 1.4)](auth-password-recovery.md) e rotas `POST /api/auth/refresh`, `POST /api/auth/logout`, `POST /api/auth/forgot-password`, `POST /api/auth/reset-password` documentadas nos arquivos linkados acima.
 

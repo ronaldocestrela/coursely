@@ -85,7 +85,7 @@ Inclui:
 
 - **ArchitectureTests**: impede dependências indevidas na camada `Domain`
 - **IntegrationTests**: `GET /health` via `WebApplicationFactory`; cenário com **SQL Server real em container (Testcontainers)** + **Respawn** para limpar dados. Se o Docker não estiver disponível, o teste que depende do SQL Server é **ignorado** (`Skipped`).
-- **UnitTests**: validadores e handlers de auth ([docs/auth-register.md](docs/auth-register.md), [docs/auth-login.md](docs/auth-login.md)), `Result`, geração de JWT (`JwtTokenService`).
+- **UnitTests**: validadores e handlers de auth ([docs/auth-register.md](docs/auth-register.md), [docs/auth-login.md](docs/auth-login.md), [docs/auth-password-recovery.md](docs/auth-password-recovery.md)), `Result`, geração de JWT (`JwtTokenService`).
 
 ### Variáveis de ambiente (API)
 
@@ -96,8 +96,9 @@ Inclui:
 | `Jwt__Key` | **Produção / qualquer ambiente com login JWT** | Segredo de assinatura do access token (HS256). Deve ser forte e longo o suficiente; ver `Jwt` em [`appsettings.json`](src/Api/appsettings.json). |
 | `Jwt__Issuer` | Recomendada | Emissor do JWT (alinhado a `Jwt:Issuer` no appsettings). |
 | `Jwt__Audience` | Recomendada | Audiência do JWT (`Jwt:Audience`). |
+| `PasswordRecovery__FrontendBaseUrl` | Recomendada em Compose / resets reais | Base URL da SPA (**sem slash final**) para montar o link `…/redefinir-senha?userId=&token=` (logs locais ou e-mail futuro); ver [`docs/auth-password-recovery.md`](docs/auth-password-recovery.md). |
 
-Endpoints de autenticação e contratos: [docs/auth-register.md](docs/auth-register.md), [docs/auth-login.md](docs/auth-login.md).
+Endpoints de autenticação e contratos: [docs/auth-register.md](docs/auth-register.md), [docs/auth-login.md](docs/auth-login.md), [docs/auth-password-recovery.md](docs/auth-password-recovery.md).
 
 Ver também [`appsettings.json`](src/Api/appsettings.json).
 
