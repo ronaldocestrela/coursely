@@ -11,6 +11,7 @@ Este roadmap transforma o planejamento do `agents.md` em uma sequência de peque
 - Nenhuma regra de negócio deve ficar no controller ou somente no frontend.
 - Toda listagem deve nascer paginada.
 - Toda entrega deve atualizar a documentação viva quando criar endpoints, fluxos ou decisões relevantes.
+- Telas e fluxos de UX devem ficar refletidos no **Google Stitch** ([projeto Coursely](https://stitch.withgoogle.com/projects/13905040481242586827)); ver [`docs/stitch.md`](docs/stitch.md). Desenvolvimento no Cursor pode usar o **MCP Stitch** quando disponível.
 
 ## Estrutura Geral de Entregas
 

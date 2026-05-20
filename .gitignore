@@ -1,0 +1,17 @@
+## Build outputs
+**/bin/
+**/obj/
+**/dist/
+
+## Dependencies
+**/node_modules/
+
+## Tooling / IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+## OS
+.DS_Store
+Thumbs.db

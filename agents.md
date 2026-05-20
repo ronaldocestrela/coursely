@@ -72,6 +72,15 @@ Construir uma plataforma SaaS B2C onde usuários possam:
 
 ---
 
+## Design e MCP (Google Stitch)
+
+* UI e fluxos podem ser definidos e iterados no **Google Stitch**, com consumo pelo time via **MCP Stitch** no Cursor quando configurado.
+* **Projeto Stitch oficial do Coursely:** https://stitch.withgoogle.com/projects/13905040481242586827  
+  Referência também em [`docs/stitch.md`](docs/stitch.md).
+* Ao implementar no frontend, priorizar **shadcn/ui**, Tailwind e componentes já existentes; o Stitch orienta layout e UX, não substitui validação Zod/backend nem regras de domínio.
+
+---
+
 # Arquitetura Obrigatória
 
 ## Backend — Clean Architecture
@@ -656,6 +665,7 @@ Implementar:
 * Diagramas
 * Fluxos
 * Endpoints
+* Projeto **Google Stitch** quando mudarem telas ou fluxos relevantes ([projeto do produto](https://stitch.withgoogle.com/projects/13905040481242586827); ver [`docs/stitch.md`](docs/stitch.md))
 
 A cada nova feature.
 
