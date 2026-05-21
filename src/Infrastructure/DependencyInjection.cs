@@ -1,9 +1,11 @@
 using System.Text;
+using Application.Features.Courses.Commands.CreateCourse;
 using Application.Features.Auth.Commands.Login;
 using Application.Features.Auth.Commands.Logout;
 using Application.Features.Auth.Commands.Refresh;
 using Application.Features.Auth.Commands.RegisterUser;
 using Application.Features.Auth.PasswordRecovery;
+using Infrastructure.Courses;
 using Infrastructure.Identity;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,6 +25,8 @@ public static class DependencyInjection
         IConfiguration configuration,
         IHostEnvironment environment)
     {
+        services.AddSingleton(TimeProvider.System);
+
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<PasswordRecoveryOptions>(configuration.GetSection(PasswordRecoveryOptions.SectionName));
 
@@ -69,6 +73,8 @@ public static class DependencyInjection
         services.AddScoped<IUserLogoutService, UserLogoutService>();
         services.AddScoped<IPasswordResetEmailSender, PasswordResetLoggingEmailSender>();
         services.AddScoped<IUserPasswordRecoveryService, UserPasswordRecoveryService>();
+
+        services.AddScoped<ICourseCreator, CourseCreator>();
 
         var jwtSection = configuration.GetSection(JwtOptions.SectionName);
         var jwtKey = jwtSection["Key"];

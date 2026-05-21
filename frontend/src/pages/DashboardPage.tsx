@@ -25,6 +25,9 @@ export function DashboardPage() {
       </header>
 
       <div className="flex flex-col gap-3">
+        <Button type="button" variant="default" asChild>
+          <Link to="/cursos/novo">Adicionar curso</Link>
+        </Button>
         <Button type="button" variant="outline" asChild>
           <Link to="/">Voltar ao início</Link>
         </Button>
