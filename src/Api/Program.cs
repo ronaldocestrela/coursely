@@ -66,7 +66,7 @@ if (!string.IsNullOrWhiteSpace(connectionString))
     healthChecks.AddDbContextCheck<ApplicationDbContext>("database");
 }
 
-// JWT Bearer authentication is registered in Infrastructure when connection string and Jwt:Key are set.
+// JWT Bearer authentication is registered in Infrastructure when Jwt:Key is configured (readable when services register).
 
 var app = builder.Build();
 

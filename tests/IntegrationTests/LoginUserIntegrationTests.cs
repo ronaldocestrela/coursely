@@ -1,8 +1,7 @@
-using System.Net;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using FluentAssertions;
 using Xunit;
 
@@ -47,9 +46,21 @@ public sealed class LoginUserIntegrationTests(IntegrationTestWebApplicationFacto
 
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginBody.AccessToken);
 
+        var accessJwt = new JwtSecurityTokenHandler().ReadJwtToken(loginBody.AccessToken);
+        accessJwt.Issuer.Should().Be(IntegrationHostSettings.JwtIssuer);
+        accessJwt.Audiences.Should().Contain(IntegrationHostSettings.JwtAudience);
+
         var me = await client.GetAsync("/api/auth/me");
-        me.StatusCode.Should().Be(HttpStatusCode.OK);
-        var meBody = await me.Content.ReadFromJsonAsync<MeApiResponse>(JsonOptions);
+        var mePayload = await me.Content.ReadAsStringAsync();
+        var wwwAuthenticateDiagnostic = string.Join(
+            "; ",
+            me.Headers.WwwAuthenticate.Select(static a =>
+                string.IsNullOrEmpty(a.Parameter) ? a.Scheme : $"{a.Scheme} {a.Parameter}"));
+
+        me.StatusCode.Should().Be(HttpStatusCode.OK,
+            $"GET /api/auth/me returned {me.StatusCode}. Body: {mePayload}. WWW-Authenticate: {wwwAuthenticateDiagnostic}");
+
+        var meBody = JsonSerializer.Deserialize<MeApiResponse>(mePayload, JsonOptions);
         meBody.Should().NotBeNull();
         meBody!.UserId.Should().Be(loginBody.UserId);
         string.Equals(meBody.Email, email, StringComparison.OrdinalIgnoreCase).Should().BeTrue();

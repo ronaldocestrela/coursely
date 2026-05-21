@@ -18,8 +18,6 @@ namespace IntegrationTests;
 /// </summary>
 public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private static readonly string ConnectionStringEnvKey = "ConnectionStrings__DefaultConnection";
-
     /// <summary>
     /// Pinned Ubuntu-based tag (avoid floating <c>latest</c>); see MCR MSSQL artifact tags for updates.
     /// </summary>
@@ -27,7 +25,7 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
 
     private MsSqlContainer? _sqlContainer;
     private Respawner? _respawner;
-    private bool _exportedDefaultConnectionStringToProcessEnvironment;
+    private bool _exportedIntegrationHostEnvironment;
 
     /// <summary>
     /// When false, SQL-backed assertions should be skipped (e.g. Docker not running).
@@ -45,18 +43,7 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
-            config.AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["ConnectionStrings:DefaultConnection"] = _sqlContainer.GetConnectionString(),
-                    ["Cors:AllowedOrigins"] = "http://localhost",
-                    ["Jwt:Key"] = "integration-test-jwt-signing-key-at-least-32-chars!!",
-                    ["Jwt:Issuer"] = "Coursely.Tests",
-                    ["Jwt:Audience"] = "Coursely.Tests",
-                    ["Jwt:AccessTokenExpirationMinutes"] = "60",
-                    ["Jwt:RefreshTokenExpirationDays"] = "7",
-                    ["PasswordRecovery:FrontendBaseUrl"] = "http://localhost:5173",
-                });
+            config.AddInMemoryCollection(IntegrationHostSettings.BuildAppConfigurationPairs(_sqlContainer.GetConnectionString()));
         });
     }
 
@@ -76,8 +63,9 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
 
             await _sqlContainer.StartAsync();
 
-            // Ensures ConnectionStrings:* is visible during WebApplication.CreateBuilder / AddInfrastructure before host merge.
-            ExportDefaultConnectionToProcessEnvironment(_sqlContainer.GetConnectionString());
+            // Ensures Conn + Jwt_* are visible when WebApplication.CreateBuilder runs AddInfrastructure / AddJwtBearer.
+            IntegrationHostSettings.ApplyToProcessEnvironment(_sqlContainer.GetConnectionString());
+            _exportedIntegrationHostEnvironment = true;
         }
         catch (Exception ex) when (IsDockerOrContainerInfrastructureFailure(ex))
         {
@@ -108,27 +96,21 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
         }
         catch
         {
-            RevokeExportedDefaultConnection();
+            RevokeExportedIntegrationHostEnvironment();
             await DisposeSqlContainerQuietlyAsync();
             throw;
         }
     }
 
-    private void ExportDefaultConnectionToProcessEnvironment(string connectionString)
+    private void RevokeExportedIntegrationHostEnvironment()
     {
-        Environment.SetEnvironmentVariable(ConnectionStringEnvKey, connectionString);
-        _exportedDefaultConnectionStringToProcessEnvironment = true;
-    }
-
-    private void RevokeExportedDefaultConnection()
-    {
-        if (!_exportedDefaultConnectionStringToProcessEnvironment)
+        if (!_exportedIntegrationHostEnvironment)
         {
             return;
         }
 
-        Environment.SetEnvironmentVariable(ConnectionStringEnvKey, null);
-        _exportedDefaultConnectionStringToProcessEnvironment = false;
+        IntegrationHostSettings.ClearProcessEnvironment();
+        _exportedIntegrationHostEnvironment = false;
     }
 
     private static bool IsDockerOrContainerInfrastructureFailure(Exception ex)
@@ -224,7 +206,7 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
 
     public override async ValueTask DisposeAsync()
     {
-        RevokeExportedDefaultConnection();
+        RevokeExportedIntegrationHostEnvironment();
         await base.DisposeAsync();
         if (_sqlContainer is not null)
         {
