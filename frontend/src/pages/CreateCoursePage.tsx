@@ -75,8 +75,7 @@ export function CreateCoursePage() {
   })
 
   const mutation = useMutation({
-    mutationFn: (values: CreateCourseOutput) =>
-      createCourse(toCreateDto(values)),
+    mutationFn: (values: CreateCourseOutput) => createCourse(toCreateDto(values)),
     onSuccess: () => {
       toast.success('Curso adicionado à sua lista.')
       navigate('/dashboard', { replace: true })
@@ -201,9 +200,7 @@ export function CreateCoursePage() {
             type="text"
             autoComplete="off"
             aria-invalid={Boolean(errors.category)}
-            aria-describedby={
-              errors.category ? 'course-category-error' : undefined
-            }
+            aria-describedby={errors.category ? 'course-category-error' : undefined}
             {...register('category')}
           />
           {errors.category ? (

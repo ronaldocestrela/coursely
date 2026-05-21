@@ -8,10 +8,8 @@ const courseBadgeVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          'border-border bg-muted text-foreground dark:bg-muted/40',
-        category:
-          'border-primary/25 bg-primary/10 text-primary dark:bg-primary/15',
+        default: 'border-border bg-muted text-foreground dark:bg-muted/40',
+        category: 'border-primary/25 bg-primary/10 text-primary dark:bg-primary/15',
         outline: 'border-border bg-transparent text-muted-foreground',
       },
     },
@@ -22,12 +20,18 @@ const courseBadgeVariants = cva(
 )
 
 export interface CourseBadgeProps
-  extends Omit<React.ComponentProps<'span'>, 'children' | 'title'>,
+  extends
+    Omit<React.ComponentProps<'span'>, 'children' | 'title'>,
     VariantProps<typeof courseBadgeVariants> {
   children: React.ReactNode
 }
 
-export function CourseBadge({ className, variant, children, ...props }: CourseBadgeProps) {
+export function CourseBadge({
+  className,
+  variant,
+  children,
+  ...props
+}: CourseBadgeProps) {
   return (
     <span
       data-slot="course-badge"

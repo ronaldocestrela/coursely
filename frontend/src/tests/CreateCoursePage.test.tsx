@@ -92,19 +92,14 @@ describe('CreateCoursePage', () => {
     await user.type(screen.getByLabelText(/link de compra/i), 'not-a-url')
     await user.click(screen.getByRole('button', { name: /salvar curso/i }))
 
-    expect(
-      await screen.findByText(/url http ou https válida/i),
-    ).toBeInTheDocument()
+    expect(await screen.findByText(/url http ou https válida/i)).toBeInTheDocument()
   })
 
   it('submits successfully, shows toast and navigates to dashboard', async () => {
     const { user, router } = renderCreateCourse()
 
     await user.type(screen.getByLabelText(/^título$/i), 'Meu curso')
-    await user.selectOptions(
-      screen.getByLabelText(/visibilidade/i),
-      'Public',
-    )
+    await user.selectOptions(screen.getByLabelText(/visibilidade/i), 'Public')
     await user.click(screen.getByRole('button', { name: /salvar curso/i }))
 
     expect(mockedCreate).toHaveBeenCalledWith({

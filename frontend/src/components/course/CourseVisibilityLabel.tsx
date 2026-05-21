@@ -12,10 +12,14 @@ const labels: Record<CourseVisibility, string> = {
 const accents: Record<CourseVisibility, string> = {
   Private: 'border-border bg-secondary/80 text-secondary-foreground',
   Public: 'border-primary/30 bg-primary/10 text-primary dark:bg-primary/15',
-  Shared: 'border-amber-500/35 bg-amber-500/10 text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100',
+  Shared:
+    'border-amber-500/35 bg-amber-500/10 text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100',
 }
 
-export type CourseVisibilityLabelProps = Omit<React.ComponentProps<'span'>, 'children'> & {
+export type CourseVisibilityLabelProps = Omit<
+  React.ComponentProps<'span'>,
+  'children'
+> & {
   visibility: CourseVisibility
 }
 

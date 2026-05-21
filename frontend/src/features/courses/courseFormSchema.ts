@@ -35,9 +35,7 @@ export const createCourseFormSchema = z.object({
   purchaseLink: optionalHttpUrl(
     'Link de compra deve ser uma URL http ou https válida.',
   ),
-  thumbnailUrl: optionalHttpUrl(
-    'URL da capa deve ser uma URL http ou https válida.',
-  ),
+  thumbnailUrl: optionalHttpUrl('URL da capa deve ser uma URL http ou https válida.'),
   category: z
     .string()
     .trim()

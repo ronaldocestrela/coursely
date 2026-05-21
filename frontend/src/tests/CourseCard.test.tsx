@@ -4,9 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { CourseCard } from '@/components/course/CourseCard'
 import type { Course } from '@/types/courseApi'
 
-const mockCourse = (
-  overrides: Partial<Course> = {},
-): Course => ({
+const mockCourse = (overrides: Partial<Course> = {}): Course => ({
   id: '1e4f0ec6-4a3c-4c8b-9c2e-8f3a2d1b0001',
   userId: '11111111-1111-1111-1111-111111111111',
   title: 'Design Systems na prática',
@@ -25,7 +23,9 @@ describe('CourseCard', () => {
     const course = mockCourse()
     render(<CourseCard course={course} />)
 
-    expect(screen.getByRole('heading', { level: 3, name: course.title })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 3, name: course.title }),
+    ).toBeInTheDocument()
     expect(screen.getByText(course.description!)).toBeInTheDocument()
     expect(screen.getByText(course.category!)).toBeInTheDocument()
     expect(screen.getByText('Público')).toBeInTheDocument()
