@@ -13,10 +13,13 @@ using Testcontainers.MsSql;
 namespace IntegrationTests;
 
 /// <summary>
-/// Spins up SQL Server via Testcontainers when Docker is available; otherwise runs API without DB wiring.
+/// Spins up SQL Server via Testcontainers when Docker is available. When Docker is unavailable, hosts still
+/// run with EF In-Memory in <c>IntegrationTesting</c>; SQL-backed assertions use <see cref="SqlServerIsAvailable"/>.
 /// </summary>
 public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    private static readonly string ConnectionStringEnvKey = "ConnectionStrings__DefaultConnection";
+
     /// <summary>
     /// Pinned Ubuntu-based tag (avoid floating <c>latest</c>); see MCR MSSQL artifact tags for updates.
     /// </summary>
@@ -24,6 +27,7 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
 
     private MsSqlContainer? _sqlContainer;
     private Respawner? _respawner;
+    private bool _exportedDefaultConnectionStringToProcessEnvironment;
 
     /// <summary>
     /// When false, SQL-backed assertions should be skipped (e.g. Docker not running).
@@ -71,6 +75,9 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
                 .Build();
 
             await _sqlContainer.StartAsync();
+
+            // Ensures ConnectionStrings:* is visible during WebApplication.CreateBuilder / AddInfrastructure before host merge.
+            ExportDefaultConnectionToProcessEnvironment(_sqlContainer.GetConnectionString());
         }
         catch (Exception ex) when (IsDockerOrContainerInfrastructureFailure(ex))
         {
@@ -101,9 +108,27 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
         }
         catch
         {
+            RevokeExportedDefaultConnection();
             await DisposeSqlContainerQuietlyAsync();
             throw;
         }
+    }
+
+    private void ExportDefaultConnectionToProcessEnvironment(string connectionString)
+    {
+        Environment.SetEnvironmentVariable(ConnectionStringEnvKey, connectionString);
+        _exportedDefaultConnectionStringToProcessEnvironment = true;
+    }
+
+    private void RevokeExportedDefaultConnection()
+    {
+        if (!_exportedDefaultConnectionStringToProcessEnvironment)
+        {
+            return;
+        }
+
+        Environment.SetEnvironmentVariable(ConnectionStringEnvKey, null);
+        _exportedDefaultConnectionStringToProcessEnvironment = false;
     }
 
     private static bool IsDockerOrContainerInfrastructureFailure(Exception ex)
@@ -199,6 +224,7 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
 
     public override async ValueTask DisposeAsync()
     {
+        RevokeExportedDefaultConnection();
         await base.DisposeAsync();
         if (_sqlContainer is not null)
         {

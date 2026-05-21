@@ -74,7 +74,7 @@ dotnet run --project src/Api/Api.csproj
 - Swagger (desenvolvimento): `/swagger`
 - Health check: `GET /health`
 - URL HTTP padrão (perfil `http`): `http://localhost:5230`
-- **Sem `ConnectionStrings:DefaultConnection` configurada**: fora do ambiente **`IntegrationTesting`**, Identity e endpoints de auth usam um banco **In-Memory** do EF Core (dados **voláteis** ao reiniciar o processo). Isso vale também para **`ASPNETCORE_ENVIRONMENT=Production`** ou Docker sem CS (evita erro de DI). Para **SQL Server persistente**, defina a connection string (Compose, variável ou `appsettings.*`).
+- **Sem `ConnectionStrings:DefaultConnection` configurada**: o host regista sempre **Identity** e serviços de auth — com CS usa **SQL Server**; sem CS usa EF **In-Memory** (**volátil**). Nos testes **`IntegrationTesting`**, após o SQL Server do Testcontainers iniciar também é aplicado **`ConnectionStrings__DefaultConnection`** no processo (`IntegrationTestWebApplicationFactory`), para que `AddInfrastructure` e o primeiro host usem a mesma instância. Para **persistência real** (Compose/prod), defina sempre a CS.
 
 
 ### Testes (.NET)
